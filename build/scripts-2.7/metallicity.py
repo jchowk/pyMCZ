@@ -13,7 +13,6 @@
 ## disp - if True prints the results, default False
 ##############################################################################
 
-from __future__ import print_function
 import sys
 import os
 import numpy as np
@@ -21,13 +20,9 @@ import numpy as np
 IGNOREDUST = False
 MP = True
 FIXNEGATIVES = True  # set to true if no negative flux measurements should be allowed. all negative flux measurements are set to 0
-DROPNEGATIVES = False  # set to true if no negative flux measurements should be allowed. all negative flux measurements are dropped
-if DROPNEGATIVES:
-    FIXNEGATIVES = False
-    
+
 ##list of metallicity methods, in order calculated
 Zs = ["E(B-V)",  # based on Halpha, Hbeta
-    "E(B-V)blue",  # based on Hbeta, Hgamma
     "logR23",  # Hbeta,  [OII]3727, [OIII]5007, [OIII]4959
 
     "D02",  # Halpha, [NII]6584
@@ -53,8 +48,7 @@ Zs = ["E(B-V)",  # based on Halpha, Hbeta
     "KK04_N2Ha",  # Halpha, Hbeta,  [OII]3727, [NII]6584
     "KK04_R23",  # Hbeta,  [OII]3727, [OIII]5007, ([OIII]4959 )
     "KD02comb",
-    "PM14",
-    "D16"]  # ,"KK04comb"]
+    "PM14"]  # ,"KK04comb"]
 #'KD02_N2O2', 'KD03new_R23', 'M91', 'KD03_N2Ha'
 
 Zserr = ['PM14err']  # ,"KK04comb"]
@@ -72,59 +66,49 @@ def get_errkeys():
 def printsafemulti(string, logf, nps):
     #this is needed because dealing with a log output with multiprocessing
     #is painful. but it introduces a bunch of if checks.
+    #if anyone has a better solution please let me know!
     if nps == 1:
-        logf.write(string + "\n")
-        #print >> logf, string
+        print >> logf, string
     else:
-        print (string)
+        print string
 
 
 ##############################################################################
-##fz_roots function as used in the IDL code 
+##fz_roots function as used in the IDL code  FED:reference the code here!
 ##############################################################################
 
 #@profile
-def calculation(mscales, measured, num, mds, nps, logf, dust_corr=True,
-                dust_blue=False, disp=False, verbose=False):
+def calculation(mscales, measured, num, mds, nps, logf, dust_corr=True, disp=False, verbose=False):
 
     global IGNOREDUST
     mscales.setdustcorrect()
     raw_lines = {}
     raw_lines['[OIII]5007'] = np.array([float('NaN')])
     raw_lines['Hb'] = np.array([float('NaN')])
-    raw_lines['Hg'] = np.array([float('NaN')])
     raw_lines['Hz'] = np.array([float('NaN')])
     for k in measured.iterkeys():
         #kills all non-finite terms
         measured[k][~(np.isfinite(measured[k][:]))] = 0.0
-
         if FIXNEGATIVES:
             measured[k][measured[k] < 0] = 0.0
-
-        if DROPNEGATIVES:
-            measured[k][measured[k] < 0] = np.nan
-
         raw_lines[k] = measured[k]
+
     ######we trust QM better than we trust the measurement of the [OIII]4959
     ######which is typical low S/N so we set it to [OIII]5007/3.
     ######change this only if youre spectra are very high SNR
     raw_lines['[OIII]4959'] = raw_lines['[OIII]5007'] / 3.
     raw_lines['[OIII]49595007'] = raw_lines['[OIII]4959'] + raw_lines['[OIII]5007']
-    mscales.setHabg(raw_lines['Ha'], raw_lines['Hb'], raw_lines['Hg'])
+    mscales.setHab(raw_lines['Ha'], raw_lines['Hb'])
 
     #if Ha or Hb is zero, cannot do red correction
-    if dust_corr and mscales.hasHa and mscales.hasHb and not dust_blue:
+    if dust_corr and mscales.hasHa and mscales.hasHb:
         with np.errstate(invalid='ignore'):
             mscales.calcEB_V()
-    elif dust_blue and mscales.hasHg and mscales.hasHb:
-        with np.errstate(invalid='ignore'):
-            mscales.calcEB_Vblue()
-            print('----- Using Hg/Hb for E(B-V)_blue estimate. -----')
     elif dust_corr and not IGNOREDUST:
 
         if nps > 1:
-            print ('''WARNING: reddening correction cannot be done 
-            without both H_alpha and H_beta measurement!!''')
+            print '''WARNING: reddening correction cannot be done 
+            without both H_alpha and H_beta measurement!!'''
 
         else:
             response = raw_input('''WARNING: reddening correction cannot be done without both H_alpha and H_beta measurement!! 
@@ -164,7 +148,7 @@ def calculation(mscales, measured, num, mds, nps, logf, dust_corr=True,
 
     #mscales.printme()
     if verbose:
-        print ("calculating metallicity diagnostic scales: ", mds)
+        print "calculating metallicity diagnostic scales: ", mds
     if 'all' in mds:
         mscales.calcD02()
         if   os.getenv("PYQZ_DIR"):
@@ -175,7 +159,7 @@ def calculation(mscales, measured, num, mds, nps, logf, dust_corr=True,
         else:
             printsafemulti('''WARNING: CANNOT CALCULATE pyqz: 
             set path to pyqz as environmental variable :
-            export PYQZ_DIR="your/path/where/pyqz/resides/ in bash, for example, if you want this scale. \n''', logf, nps)
+            export PYQZ_DIR="your/path/where/pyqz/resides/ in bash, for example, if you want this scale. ''', logf, nps)
 
         mscales.calcZ94()
         mscales.calcM91()
@@ -227,9 +211,8 @@ def calculation(mscales, measured, num, mds, nps, logf, dust_corr=True,
             #using the commented line below instead
             mscales.calcpyqz(plot=disp, allD13=True)
         else:
-            printsafemulti('''WARNING: CANNOT CALCULATE pyqz: 
-            set path to pyqz as environmental variable 
-            PYQZ_DIR if you want this scale. ''', logf, nps)
+            printsafemulti('''set path to pyqz as environmental variable 
+PYQZ_DIR if you want this scale. ''', logf, nps)
 
     if 'PM14' in mds:
         if   os.getenv("HIICHI_DIR"):
@@ -260,5 +243,3 @@ def calculation(mscales, measured, num, mds, nps, logf, dust_corr=True,
         mscales.calcKK04_N2Ha()
         mscales.calcKK04_R23()
         mscales.calcKDcombined()
-    if 'D16' in mds:
-        mscales.calcD16()

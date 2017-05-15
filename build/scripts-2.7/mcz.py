@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-from __future__ import print_function
+#!/Users/howk/anaconda/bin/python
 import os
 import sys
 import argparse
@@ -42,7 +41,7 @@ NM0 = 0  # setting this to say N>0 starts the calculation at measurement N.
 PROFILING = True
 PROFILING = False
 
-alllines = ['[OII]3727', 'Hg','Hb', '[OIII]4959', '[OIII]5007', '[OI]6300', 'Ha', '[NII]6584', '[SII]6717', '[SII]6731', '[SIII]9069', '[SIII]9532']
+alllines = ['[OII]3727', 'Hb', '[OIII]4959', '[OIII]5007', '[OI]6300', 'Ha', '[NII]6584', '[SII]6717', '[SII]6731', '[SIII]9069', '[SIII]9532']
 morelines = ['E(B-V)', 'dE(B-V)', 'scale_blue', 'd scale_blue']
 
 MAXPROCESSES = 10
@@ -62,9 +61,7 @@ ASCIIDISTRIB = False
 RUNSIM = True
 NOPLOT = False
 BINMODE = 'k'
-binning = {'bb': 'Bayesian blocks', 'k': "Knuth's rule",
-           'd': "Doane's formula", 's': r'$\sqrt{N}$',
-           't': r'$2 N^{1/3}$', 'kd': 'Kernel Density'}
+binning = {'bb': 'Bayesian blocks', 'k': "Knuth's rule", 'd': "Doane's formula", 's': r'$\sqrt{N}$', 't': r'$2 N^{1/3}$', 'kd': 'Kernel Density'}
 
 MP = False
 
@@ -130,12 +127,7 @@ def readfile(filename):
     l0 = f.readline().replace(' ', '')
     l1 = f.readline().split()
     if l0.startswith('#') or l0.startswith(';'):
-        # Modified to account for non-standard header (\t instead of , separated) jch
-        temp_header = l0.strip().replace(";", '').replace("#", '')
-        if temp_header.find(',') == -1:
-            header = temp_header.split('\t')
-        else:
-            header = temp_header.split(',')
+        header = l0.strip().replace(";", '').replace("#", '').split(',')
         header[0] = header[0].replace(' ', '')
         header = header[:len(l1)]
     else:
@@ -143,17 +135,7 @@ def readfile(filename):
         header = ['galnum'] + alllines + ['flag'] + morelines
         header = header[:len(l1)]
 
-    usecols = []
-    newheader  = []
-    for i,h in enumerate(header):
-        if h in alllines + ['galnum']:
-            usecols.append(i)
-            newheader.append(h)
-
-    header = newheader
-    
     formats = ['S10'] + ['f'] * (len(header) - 1)
-
     if 'flag' in header:
         findex = header.index('flag')
         formats[findex] = 'S10'
@@ -161,9 +143,10 @@ def readfile(filename):
     bstruct = {}
     for i, k in enumerate(header):
         bstruct[k] = [i, 0]
-    b = np.loadtxt(filename, skiprows=noheader, dtype={'names': header, 'formats': formats}, comments=';',usecols=usecols)
+    b = np.loadtxt(filename, skiprows=noheader, dtype={'names': header, 'formats': formats}, comments=';')
     if b.size == 1:
         b = np.atleast_1d(b)
+
     for i, k in enumerate(header):
         if not k == 'flag' and is_number(b[k][0]):
             bstruct[k][1] = np.count_nonzero(b[k]) + sum(np.isnan(b[k]))
@@ -195,15 +178,16 @@ def ingest_data(filename, path):
         pass
     return (filename, meas, err, nm, path, (bsmeas, bserr))
 
+
 def input_data(filename, path):
     p = os.path.join(path, "input")
     assert os.path.isdir(p), "bad data directory %s" % p
     if os.path.isfile(os.path.join(p, filename + '_err.txt')):
         if os.path.isfile(os.path.join(p, filename + '_meas.txt')):
             return ingest_data(filename, path=p)
-    print ("Unable to find _meas and _err files ", filename +
-           '_meas.txt', filename + '_err.txt', "in directory ", p)
+    print "Unable to find _meas and _err files ", filename + '_meas.txt', filename + '_err.txt', "in directory ", p
     return -1
+
 
 ##############################################################################
 ##returns a random distribution. In the deployed version of the code this is a gaussian distribution, but the user can include her or his distribution.
@@ -214,11 +198,11 @@ def errordistrib(distrargs, n, distype='normal'):
         try:
             mu, sigma = distrargs
         except:
-            print ("for normal distribution distargs must be a 2 element tuple")
+            print "for normal distribution distargs must be a 2 element tuple"
             return -1
         return np.random.normal(mu, sigma, n)
     else:
-        print ("distribution not supported")
+        print "distribution not supported"
         return -1
 
 
@@ -281,12 +265,11 @@ def savehist(data, snname, Zs, nsample, i, path, nmeas, measnames, verbose=False
     kde = None
     if not n > 0:
         if verbose:
-            print ("data must be an actual distribution (n>0 elements!, %s)" % Zs)
+            print "data must be an actual distribution (n>0 elements!, %s)" % Zs
         return "-1,-1,_1", [], kde
 
     if data.shape[0] <= 0 or np.sum(data) <= 0:
-        print ('{0:15} {1:20} {2:>13d}   {3:>7d}   {4:>7d} '\
-               .format(snname, Zs, -1, -1, -1))
+        print '{0:15} {1:20} {2:>13d}   {3:>7d}   {4:>7d} '.format(snname, Zs, -1, -1, -1)
         return "-1, -1, -1", [], kde
     try:
         ###find C.I.###
@@ -300,17 +283,14 @@ def savehist(data, snname, Zs, nsample, i, path, nmeas, measnames, verbose=False
             maxleft = median - 1
             maxright = median + 1
         if round(right, 6) == round(left, 6) and round(left, 6) == round(median, 6):
-            print ('{0:15} {1:20} {2:>13.3f}   -{3:>7.3f}   +{4:>7.3f} (no distribution)'.format(snname, Zs, median, 0, 0))
+            print '{0:15} {1:20} {2:>13.3f}   -{3:>7.3f}   +{4:>7.3f} (no distribution)'.format(snname, Zs, median, 0, 0)
             if reserr:
-                print ('+/- {0:.3f}'.format(reserr))
+                print '+/- {0:.3f}'.format(reserr)
             return "%f\t %f\t %f" % (round(median, 3), round(median - left, 3), round(right - median, 3)), data, kde  # "-1,-1,-1",[]
         ###print out the confidence interval###
-        print ('{0:15} {1:20} {2:>13.3f}   -{3:>7.3f}   +{4:>7.3f}'.format(snname,
-                                                                           Zs, round(median, 3),
-                                                                           round(median - left, 3),
-                                                                           round(right - median, 3)))
+        print '{0:15} {1:20} {2:>13.3f}   -{3:>7.3f}   +{4:>7.3f}'.format(snname, Zs, round(median, 3), round(median - left, 3), round(right - median, 3))
         if reserr:
-            print ('+/- {0:.3f}'.format(reserr))
+            print '+/- {0:.3f}'.format(reserr)
         alpha = 1.0
 
         ######histogram######
@@ -319,9 +299,9 @@ def savehist(data, snname, Zs, nsample, i, path, nmeas, measnames, verbose=False
             try:
                 from sklearn.neighbors import KernelDensity
             except ImportError:
-                print ('''sklearn is not available, 
+                print '''sklearn is not available, 
                 thus we cannot compute kernel density. 
-                switching to bayesian blocks''')
+                switching to bayesian blocks'''
                 BINMODE = 'bb'
         if BINMODE == 'kd':
             ##bw is chosen according to Silverman 1986
@@ -358,8 +338,8 @@ def savehist(data, snname, Zs, nsample, i, path, nmeas, measnames, verbose=False
                     if not NOPLOT:
                         plt.clf()
                 except ImportError:
-                    print ("bayesian blocks for histogram requires astroML to be installed")
-                    print ("defaulting to Knuth's rule ")
+                    print "bayesian blocks for histogram requires astroML to be installed"
+                    print "defaulting to Knuth's rule "
                     ##otherwise
                     numbin, bm = getbinsize(data.shape[0], data)
                     distrib = np.histogram(data, bins=int(numbin), density=True)
@@ -402,8 +382,7 @@ def savehist(data, snname, Zs, nsample, i, path, nmeas, measnames, verbose=False
         plt.annotate(st, xy=(0.13, 0.6), xycoords='axes fraction', size=fs, fontweight='bold')
         st = '%s ' % (Zs.replace('_', ' '))
         plt.annotate(st, xy=(0.61, 0.93), xycoords='axes fraction', fontsize=fs, fontweight='bold')
-        st = 'measurement %d of %d\n   %s\nmedian: %.3f\n16th Percentile: %.3f\n84th Percentile: %.3f' \
-             % (i + 1, nmeas, measnames[i], round(median, 3), round(left, 3), round(right, 3))
+        st = 'measurement %d of %d\n   %s\nmedian: %.3f\n16th Percentile: %.3f\n84th Percentile: %.3f' % (i + 1, nmeas, measnames[i], round(median, 3), round(left, 3), round(right, 3))
         plt.annotate(st, xy=(0.61, 0.65), xycoords='axes fraction', fontsize=fs)
         effectiven = len(data[~np.isnan(data)])
         if effectiven:
@@ -429,29 +408,23 @@ def savehist(data, snname, Zs, nsample, i, path, nmeas, measnames, verbose=False
 
     except (OverflowError, AttributeError, ValueError):
         if VERBOSE:
-            print (data)
-        print (name, 'had infinities (or something in plotting went wrong)')
+            print data
+        print name, 'had infinities (or something in plotting went wrong)'
         return "-1, -1,-1", [], None
 
 
-def calc((i, (sample, flux, err, nm, bss, mds, disp, dust_corr,dust_blue,
-              verbose, res, scales, nps, logf))):
+def calc((i, (sample, flux, err, nm, bss, mds, disp, dust_corr, verbose, res, scales, nps, logf))):
     logf = sys.stdout
-    logf.write("\n\nreading in measurements %d\n"%(i + 1))
+    print >> logf, "\n\nreading in measurements ", i + 1
     fluxi = {}  # np.zeros((len(bss[0]),nm),float)
     for k in bss[0].iterkeys():
-        logf.write('{0:15} '.format(k))
-        logf.write('{0:0.2} +/- {1:0.2}\n'.format(flux[k][i], err[k][i]))
-        #print >> logf, '{0:15} '.format(k),
-        #print >> logf, '{0:0.2} +/- {1:0.2}'.format(flux[k][i], err[k][i])
+        print >> logf, '{0:15} '.format(k),
+        print >> logf, '{0:0.2} +/- {1:0.2}'.format(flux[k][i], err[k][i])
         fluxi[k] = flux[k][i] * np.ones(len(sample[i])) + err[k][i] * sample[i]
         warnings.filterwarnings("ignore")
-    success = metallicity.calculation(scales[i], fluxi, nm, mds, nps, logf,
-                                      disp=disp, verbose=verbose,
-                                      dust_corr=dust_corr,dust_blue=dust_blue)
+    success = metallicity.calculation(scales[i], fluxi, nm, mds, nps, logf, disp=disp, dust_corr=dust_corr, verbose=verbose)
     if success == -1:
-        logf.write("MINIMUM REQUIRED LINES: '[OII]3727','[OIII]5007','[NII]6584','[SII]6717'\n")
-        #print >> logf, "MINIMUM REQUIRED LINES: '[OII]3727','[OIII]5007','[NII]6584','[SII]6717'"
+        print >> logf, "MINIMUM REQUIRED LINES: '[OII]3727','[OIII]5007','[NII]6584','[SII]6717'"
 
     for key in scales[i].mds.iterkeys():
         if key in res.keys():
@@ -474,8 +447,7 @@ def calc((i, (sample, flux, err, nm, bss, mds, disp, dust_corr,dust_blue,
 ##      mode 't' calculates this based on 2*n**1/3
 ##############################################################################
 #@profile
-def run((name, flux, err, nm, path, bss), nsample, mds, multiproc, logf,
-        unpickle=False, dust_corr=True, dust_blue=False, verbose=False, fs=24):
+def run((name, flux, err, nm, path, bss), nsample, mds, multiproc, logf, unpickle=False, dust_corr=True, verbose=False, fs=24):
     global RUNSIM  # ,BINMODE#,NOPLOT
     assert(len(flux[0]) == len(err[0])), "flux and err must be same dimensions"
     assert(len(flux['galnum']) == nm), "flux and err must be of declaired size"
@@ -500,7 +472,7 @@ def run((name, flux, err, nm, path, bss), nsample, mds, multiproc, logf,
     binp = os.path.join(p, 'output', '%s' % name)
     picklefile = os.path.join(binp, '%s_n%d.pkl' % (name, nsample))
     if VERBOSE:
-        print ("output files will be stored in ", binp)
+        print "output files will be stored in ", binp
     if not CLOBBER and not NOPLOT:
         for key in Zs:
             for i in range(NM0, nm):
@@ -511,7 +483,7 @@ def run((name, flux, err, nm, path, bss), nsample, mds, multiproc, logf,
             raw_input("missing pickled file for this simulation: name, nsample.\nrun the MonteCarlo? Ctr-C to exit, Return to continue?\n")
             RUNSIM = True
         else:
-            pklfile = open(picklefile, 'rb')     
+            pklfile = open(picklefile, 'rb')
             res = pickle.load(pklfile)
 
     if RUNSIM:
@@ -525,13 +497,12 @@ def run((name, flux, err, nm, path, bss), nsample, mds, multiproc, logf,
             sample = [errordistrib(dargs, newnsample) for i in range(NM0, nm)]
             if sample == -1:
                 return -1
-            
         ###Start calculation###
         ## the flux to be feed to the calculation will be
         ## flux + error*i
         ## where i is the sampled gaussian
         if VERBOSE:
-            print ("Starting iteration")
+            print "Starting iteration"
 
         #initialize the dictionary
         res = {}
@@ -555,17 +526,17 @@ def run((name, flux, err, nm, path, bss), nsample, mds, multiproc, logf,
         if multiproc and nps > 1:
             scales = [ms.diagnostics(newnsample, logf, nps) for i in range(nm)]
 
-            logf.write( "\n\n\nrunning on %d threads\n\n\n" % nps)
-            #print >> logf, "\n\n\nrunning on %d threads\n\n\n" % nps
-            second_args = [sample, flux, err, nm, bss, mds, VERBOSE, dust_corr, dust_blue, VERBOSE, res, scales, nps, logf]
+            print >> logf, "\n\n\nrunning on %d threads\n\n\n" % nps
+            second_args = [sample, flux, err, nm, bss, mds, VERBOSE, dust_corr, VERBOSE, res, scales, nps, logf]
             pool = mpc.Pool(processes=nps)  # depends on available cores
             rr = pool.map(calc, itertools.izip(range(NM0, nm), itertools.repeat(second_args)))  # for i in range(nm): result[i] = f(i, second_args)
-
-
             for ri, r  in enumerate(rr):
                 for kk in r.iterkeys():
                     res[kk][ri] = r[kk][ri]
 
+            for ri, r  in enumerate(rr):
+                for kk in r.iterkeys():
+                    res[kk][ri] = r[kk][ri]
             pool.close()  # not optimal! but easy
             pool.join()
             for key in scales[i].mds.iterkeys():
@@ -577,38 +548,29 @@ def run((name, flux, err, nm, path, bss), nsample, mds, multiproc, logf,
                 res[key][i] = [float('NaN')] * len(sample)
 
             if VERBOSE:
-                print ("Iteration Complete")
+                print "Iteration Complete"
         else:
             #looping over nm spectra
             for i in range(NM0, nm):
                 scales = ms.diagnostics(newnsample, logf, nps)
-                logf.write("\n\n measurements %d\n"%(i + 1))
-                #print >> logf, "\n\n measurements ", i + 1
+                print >> logf, "\n\n measurements ", i + 1
                 fluxi = {}
-                for k in bss[0].iterkeys():
-                    #shuffling the distribution each time
-                    np.random.shuffle(sample[i])
 
-                    logf.write('{0:15} '.format(k))
-                    logf.write('{0:0.2} +/- {1:0.2}\n'.format(flux[k][i],
-                                                              err[k][i]))
-                    #print >> logf, '{0:15} '.format(k),
-                    #print >> logf, '{0:0.2} +/- {1:0.2}'.format(flux[k][i], err[k][i])
+                for k in bss[0].iterkeys():
+                    print >> logf, '{0:15} '.format(k),
+                    print >> logf, '{0:0.2} +/- {1:0.2}'.format(flux[k][i], err[k][i])
                     fluxi[k] = flux[k][i] * np.ones(len(sample[i])) + err[k][i] * sample[i]
                     warnings.filterwarnings("ignore")
-                logf.write("\n")
-                #print >> logf, ""
+                print >> logf, ""
 
-                success = metallicity.calculation(scales, fluxi, nm, mds, 1, logf,
-                                                  disp=VERBOSE, verbose=VERBOSE,
-                                                  dust_corr=dust_corr, dust_blue=dust_blue)
+                success = metallicity.calculation(scales, fluxi, nm, mds, 1, logf, disp=VERBOSE, dust_corr=dust_corr, verbose=VERBOSE)
                 if success == -1:
-                    print ("MINIMUM REQUIRED LINES:  [OII]3727 & [OIII]5007, or [NII]6584, and Ha & Hb if you want dereddening")
+                    print "MINIMUM REQUIRED LINES:  [OII]3727 & [OIII]5007, or [NII]6584, and Ha & Hb if you want dereddening"
                     #continue
 
 
                 for key in scales.mds.iterkeys():
-                    if key not in Zs:
+                    if not key in Zs:
                         continue
                     res[key][i] = scales.mds[key]
                     if res[key][i] is None:
@@ -620,7 +582,7 @@ def run((name, flux, err, nm, path, bss), nsample, mds, multiproc, logf,
                 if key in Zs:
                     res[key] = np.array(res[key]).T
             if VERBOSE:
-                print ("Iteration Complete")
+                print "Iteration Complete"
 
         #"WE CAN PICKLE THIS!"
         #pickle this realization
@@ -632,13 +594,11 @@ def run((name, flux, err, nm, path, bss), nsample, mds, multiproc, logf,
     if 'Time' not in  findfont(FontProperties()):
         fs = 20
     if VERBOSE:
-        print ("FONT: %s, %d" % (findfont(FontProperties()), fs))
+        print "FONT: %s, %d" % (findfont(FontProperties()), fs)
 
     ###Bin the results and save###
-    print ("\n\n")
-    print ('{0:15} {1:20} {2:>13}   -{3:>5}     +{4:>5}  {5:11} {6:>7}'\
-        .format("SN", "diagnostic", "metallicity", "34%", "34%",
-                "(sample size:", '%d)' % nsample))
+    print "\n\n"
+    print '{0:15} {1:20} {2:>13}   -{3:>5}     +{4:>5}  {5:11} {6:>7}'.format("SN", "diagnostic", "metallicity", "34%", "34%", "(sample size:", '%d)' % nsample)
     for i in range(NM0, nm):
         if ASCIIOUTPUT:
             fi = open(os.path.join(binp, '%s_n%d_%d.txt' % (name, nsample, i + 1)), 'w')
@@ -646,13 +606,12 @@ def run((name, flux, err, nm, path, bss), nsample, mds, multiproc, logf,
 
         boxlabels = []
         datas = []
-        print ("\n\nmeasurement ",
-               "%d/%d : %s-------------------------------------------------------------" % (i + 1, nm, flux[i]['galnum']))
+        print "\n\nmeasurement %d : %s-------------------------------------------------------------" % (i + 1, flux[i]['galnum'])
         for key in Zs:
             if nsample == -1:
                 try:
                     if ~np.isnan(res[key][i][0]):
-                        print ('{0:15} {1:20} {2:>13.3f}   -{3:>7.3f}   +{4:>7.3f} (no distribution)'.format(name + ' %d' % (i + 1), key, res[key][i][0], 0, 0))
+                        print '{0:15} {1:20} {2:>13.3f}   -{3:>7.3f}   +{4:>7.3f} (no distribution)'.format(name + ' %d' % (i + 1), key, res[key][i][0], 0, 0)
                 except IndexError:
                     pass
             else:
@@ -666,7 +625,7 @@ def run((name, flux, err, nm, path, bss), nsample, mds, multiproc, logf,
                                 writer.writerow(res[key][:
                                     ,i])
                         if 'PM14' in key:
-                            print (reserr['PM14err'])
+                            print reserr['PM14err']
                             reserr = np.sqrt(~np.nansum(reserr['PM14err'][:
                                 ,i] ** 2))
                         sh, data, kde = savehist(res[key][:
@@ -680,7 +639,7 @@ def run((name, flux, err, nm, path, bss), nsample, mds, multiproc, logf,
                         if BINMODE == 'kd' and  not NOPICKLE:
                             pickleKDEfile = os.path.join(binp + '/%s_n%d_%s_%d_KDE.pkl' % (name, nsample, key, i + 1))
                             if VERBOSE:
-                                print ("KDE files will be stored in ", pickleKDEfile)
+                                print "KDE files will be stored in ", pickleKDEfile
                             pickle.dump(kde, open(pickleKDEfile, 'wb'))
                 except (IndexError, TypeError):
                     pass
@@ -703,7 +662,7 @@ def run((name, flux, err, nm, path, bss), nsample, mds, multiproc, logf,
         for median in bp['medians']:
             median.set(color='k', linewidth=2)
         for flier in bp['fliers']:
-            flier.set(marker='o', color='#7570b3', alpha=0.4, mfc='#7570b3')
+            flier.set(marker='o', color='#7570b3', alpha=0.4)
         plt.title("measurement %d: %s" % (i + 1, flux[i]['galnum']))
         plt.xticks(range(1, len(boxlabels) + 1), boxlabels, rotation=90, fontsize=fs - 5)
         plt.fill_between(range(1, len(boxlabels) + 1), [8.76] * len(boxlabels), [8.69] * len(boxlabels), facecolor='black', alpha=0.3)
@@ -714,14 +673,14 @@ def run((name, flux, err, nm, path, bss), nsample, mds, multiproc, logf,
         if ASCIIOUTPUT:
             fi.close()
         if VERBOSE:
-            print ("uncertainty calculation complete")
+            print "uncertainty calculation complete"
 
         #del datas
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('name', metavar='<name>', type=str, help="the SN file name (root of the _min,_max file names")
-    parser.add_argument('nsample', metavar='N', type=int, help="number of iterations, minimum 100 (or 1 for no MC sampling)")
+    parser.add_argument('nsample', metavar='N', type=int, help="number of iterations, minimum 100 (or 0 for no MC sampling)")
     parser.add_argument('--clobber', default=False, action='store_true', help="replace existing output")
     parser.add_argument('--binmode', default='k', type=str, choices=['d', 's', 'k', 't', 'bb', 'kd'], help='''method to determine bin size 
     {d: Duanes formula, s: n^1/2, t: 2*n**1/3(default), k: Knuth's rule, 
@@ -733,13 +692,12 @@ def main():
     parser.add_argument('--verbose', default=False, action='store_true', help="verbose mode")
     parser.add_argument('--log', default=None, type=str, help="log file, if not passed defaults to standard output")
     parser.add_argument('--nodust', default=False, action='store_true', help=" don't do dust corrections (default is to do it)")
-    parser.add_argument('--bluedust', default=False, action='store_true', help=" use Hg/Hb for dust correction (default is Hb/Ha)")
     parser.add_argument('--noplot', default=False, action='store_true', help=" don't plot individual distributions (default is to plot all distributions)")
     parser.add_argument('--asciiout', default=False, action='store_true', help=" write distribution in an ascii output (default is not to)")
     parser.add_argument('--asciidistrib', default=False, action='store_true', help=" write distribution in an ascii output (default is not to)")
     parser.add_argument('--md', default='all', type=str, help='''metallicity diagnostic to calculate. 
     default is 'all', options are: 
-    D02, Z94, M91, C01, P05, M08, M08all, M13, PP04, D13, D13all, KD02, DP00 (deprecated), P01, D16''')
+    D02, Z94, M91, C01, P05, M08, M08all, M13, PP04, D13, KD02, DP00 (deprecated), P01''')
     parser.add_argument('--multiproc', default=False, action='store_true', help=" multiprocess, with number of threads max(available cores-1, MAXPROCESSES)")
     args = parser.parse_args()
 
@@ -769,19 +727,17 @@ def main():
         path = os.getenv("MCMetdata")
     assert(os.path.isdir(path)), "pass a path or set up the environmental variable MCMetdata pointing to the path where the _min _max _med files live"
     if args.nsample == 1:
-        print ("CALCULATING METALLICITY WITHOUT GENERATING MC DISTRIBUTIONS")
+        print "CALCULATING METALLICITY WITHOUT GENERATING MC DISTRIBUTIONS"
     if args.nsample == 1 or args.nsample >= 10:
         fi = input_data(args.name, path=path)
         if fi != -1:
             logf = smart_open(args.log)
-            run(fi, args.nsample, args.md, args.multiproc, logf,
-                unpickle=args.unpickle,
-                dust_corr=(not args.nodust), dust_blue=(args.bluedust),
-                verbose=VERBOSE)
+            run(fi, args.nsample, args.md, args.multiproc, logf, unpickle=args.unpickle, dust_corr=(not args.nodust), verbose=VERBOSE)
             if args.log:
                 logf.close()
     else:
-        print ("nsample must be at least 100")
+        print "nsample must be at least 100"
+
 
 if __name__ == "__main__":
     if PROFILING:
