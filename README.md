@@ -53,6 +53,7 @@ additional command line arguments
  <b> --md MD      </b>         metallicity scales to calculate. default is 'all',
                         options are: D02, Z94, M91, M08, P05,P10, PP04, M13, D13, KD02,
                         KD02comb, DP00 (deprecated), P01 (deprecated), C01 (deprecated)
+
                         
 <b>  --unpickle    </b>        if it exists, a pickle file generated in a previous run for this \<filename\> and this 
                         number of samples is read in instead of recalculating the metalicity
@@ -70,6 +71,8 @@ additional command line arguments
 <b>  --verbose   </b>          verbose mode. Default False.
 
 <b>  --nodust    </b>          don't do dust corrections (default is to do it)
+
+<b>  --bluedust    </b>        Calculate extinction based on Hg/Hb (default is to do Hb/Ha)
 
 <b>  --noplot    </b>          don't plot individual distributions (default is to
                         plot all distributions)

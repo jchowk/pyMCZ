@@ -739,7 +739,7 @@ def main():
     parser.add_argument('--asciidistrib', default=False, action='store_true', help=" write distribution in an ascii output (default is not to)")
     parser.add_argument('--md', default='all', type=str, help='''metallicity diagnostic to calculate. 
     default is 'all', options are: 
-    D02, Z94, M91, C01, P05, M08, M08all, M13, PP04, D13, D13all, KD02, DP00 (deprecated), P01, D16''')
+    D02, Z94, M91, C01, P05, M08, M08all, M13, PP04, D13, D13all, KD02, DP00 (deprecated), P01, D16, C17''')
     parser.add_argument('--multiproc', default=False, action='store_true', help=" multiprocess, with number of threads max(available cores-1, MAXPROCESSES)")
     args = parser.parse_args()
 
