@@ -950,16 +950,12 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
             coefs = np.array([C17_coefs['O3Hb']] * self.nm).T
             coefs[0] = coefs[0] - self.logO3Hb
             sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
-            if highZ is True:
-                indx = ((sols.real >= valid_lower) * (sols.real <= valid_upper) *
-                        (sols.imag == 0) *
-                        (sols.real >= 8.3)).cumsum(1).cumsum(1) == 1
-                self.mds['C17_O3Hb'][(indx.sum(1)) > 0] = sols[indx].real
-            elif highZ is False:
-                indx = ((sols.real >= 8.3) * (sols.real <= valid_upper) *
-                        (sols.imag == 0) *
-                        (sols.real <= 7.9)).cumsum(1).cumsum(1) == 1
-                self.mds['C17_O3Hb'][(indx.sum(1)) > 0] = sols[indx].real
+
+            # C17 define this only for the high-metal branch.
+            indx = ((sols.real >= 8.2) * (sols.real <= valid_upper) *
+                    (sols.imag == 0)).cumsum(1).cumsum(1) == 1
+            self.mds['C17_O3Hb'][(indx.sum(1)) > 0] = sols[indx].real
+
         #  Require allC17 flag if we want everything.
         if not allC17:
             return
