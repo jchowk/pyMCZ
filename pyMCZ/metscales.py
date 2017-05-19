@@ -540,11 +540,15 @@ class diagnostics:
                                         method='default', plot=plot, n_plot=False, savefig=False)[0].T
                 else:
                     #pyqz.get_grid_fn(Pk=5.0,calibs='GCZO', kappa =20, struct='pp')
-                    self.mds['D13_N2S2_O3S2'] = pyqz.interp_qz('Tot[O]+12', [np.atleast_1d([self.NII_SII]), \
-                                                                          np.atleast_1d([self.OIII_SII])], \
-                                                             '[NII]/[SII]+;[OIII]/[SII]+', \
-                                                             show_plot=plot, n_plot=False, \
-                                                             save_plot=False, verbose=False)[0].T
+                    # self.mds['D13_N2S2_O3S2'] = pyqz.interp_qz('Tot[O]+12', [np.atleast_1d([self.NII_SII]), \
+                    #                                                       np.atleast_1d([self.OIII_SII])], \
+                    #                                          '[NII]/[SII]+;[OIII]/[SII]+', \
+                    #                                          show_plot=plot, n_plot=False, \
+                    #                                          save_plot=False, verbose=False)[0].T
+                    self.mds['D13_N2S2_O3S2'] = pyqz.interp_qz('Tot[O]+12',
+                                                               [np.atleast_1d([self.NII_SII]),
+                                                                np.atleast_1d([self.OIII_SII])],
+                                                               '[NII]/[SII]+;[OIII]/[SII]+')[0].T
 
             if  self.OIII_Hb  is not None:
                 if oldpyqz:
@@ -552,11 +556,14 @@ class diagnostics:
                                         np.atleast_1d([self.OIII_Hb]), 'NII/SII', 'OIII/Hb', \
                                         method='default', plot=plot, n_plot=False, savefig=False)[0].T
                 else:
+                    # self.mds['D13_N2S2_O3SHb'] = pyqz.interp_qz('Tot[O]+12', [np.atleast_1d([self.NII_SII]), \
+                    #                                                       np.atleast_1d([self.OIII_Hb])], \
+                    #                                          '[NII]/[SII]+;[OIII]/Hb', \
+                    #                                          show_plot=plot, n_plot=False, \
+                    #                                          save_plot=False, verbose=False)[0].T
                     self.mds['D13_N2S2_O3SHb'] = pyqz.interp_qz('Tot[O]+12', [np.atleast_1d([self.NII_SII]), \
                                                                           np.atleast_1d([self.OIII_Hb])], \
-                                                             '[NII]/[SII]+;[OIII]/Hb', \
-                                                             show_plot=plot, n_plot=False, \
-                                                             save_plot=False, verbose=False)[0].T
+                                                             '[NII]/[SII]+;[OIII]/Hb')[0].T
 
 
 
@@ -595,9 +602,7 @@ class diagnostics:
                 else:
                     self.mds['D13_N2O2_O3Hb'] = pyqz.interp_qz('Tot[O]+12', [np.atleast_1d([self.NII_OII]), \
                                                                           np.atleast_1d([self.OIII_Hb])], \
-                                                             '[NII]/[OII]+;[OIII]/Hb', \
-                                                             show_plot=plot, n_plot=False, \
-                                                             save_plot=False, verbose=False)[0].T
+                                                             '[NII]/[OII]+;[OIII]/Hb')[0].T
 
             if  self.OIII_OII  is not None:
                 if oldpyqz:
@@ -607,9 +612,7 @@ class diagnostics:
                 else:
                     self.mds['D13_N2O2_O3O2'] = pyqz.interp_qz('Tot[O]+12', [np.atleast_1d([self.NII_OII]), \
                                                                           np.atleast_1d([self.OIII_OII])], \
-                                                             '[NII]/[OII]+;[OIII]/[OII]+', \
-                                                             show_plot=plot, n_plot=False, \
-                                                             save_plot=False, verbose=False)[0].T
+                                                             '[NII]/[OII]+;[OIII]/[OII]+')[0].T
         if self.logN2Ha is not None:
             if  self.OIII_Hb  is not None:
                 if oldpyqz:
@@ -619,9 +622,7 @@ class diagnostics:
                 else:
                     self.mds['D13_N2Ha_O3Hb'] = pyqz.interp_qz('Tot[O]+12', [np.atleast_1d([self.logN2Ha]), \
                                                                           np.atleast_1d([self.OIII_Hb])], \
-                                                             '[NII]/Ha;[OIII]/Hb', \
-                                                             show_plot=plot, n_plot=False, \
-                                                             save_plot=False, verbose=False)[0].T
+                                                             '[NII]/Ha;[OIII]/Hb')[0].T
             if  self.OIII_OII  is not None:
                 if oldpyqz:
                     self.mds['D13_N2Ha_O3O2'] = pyqz.get_qz(20, 'z', np.atleast_1d([self.logN2Ha]), \
@@ -631,9 +632,7 @@ class diagnostics:
                 else:
                     self.mds['D13_N2Ha_O3O2'] = pyqz.interp_qz('Tot[O]+12', [np.atleast_1d([self.logN2Ha]), \
                                                                           np.atleast_1d([self.OIII_Hb])], \
-                                                             '[NII]/Ha;[OIII]/[OII]+', \
-                                                             show_plot=plot, n_plot=False, \
-                                                             save_plot=False, verbose=False)[0].T
+                                                             '[NII]/Ha;[OIII]/[OII]+')[0].T
 
     #@profile
     def calcDP00(self):
@@ -880,18 +879,27 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
         # Published in October 2016
         #
         # Added 5/16/17 by jch, Santiago
+        import pdb
+
+        valid_upper = 8.85
+        valid_lower = 7.6
 
         printsafemulti("calculating C17", self.logf, self.nps)
         highZ = None
 
         if self.logO35007O2 is not None:
+            # C17 O3O2
             self.mds['C17_O3O2'] = np.zeros(self.nm) + float('NaN')
             coefs = np.array([C17_coefs['O3O2']] * self.nm).T
             coefs[0] = coefs[0] - self.logO35007O2
+
+            # sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
             sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
 
-            indx = ((sols.real >= 7.1) * (sols.real <= 9.4) *
+            # Find valid solutions
+            indx = ((sols.real >= valid_lower) * (sols.real <= valid_upper) *
                     (sols.imag == 0)).cumsum(1).cumsum(1) == 1
+
             # the two cumsum assure that if the condition for the ith element
             # of indx is [False, False] then after the first cumsum(1) is [0,0]
             # [False, True] is [0,1]
@@ -902,16 +910,22 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
             # The second cumsum(1) makes
             # [0,0]->[0,0], [0,1]->[0,1], [1,2]->[1,3] and finally [1,1]->[1,2]
 
+            # Set the results where appropriate
             self.mds['C17_O3O2'][(indx.sum(1)) > 0] = sols[indx].real
+
+            # Now use this to see if we're on the high-Z branch of R23
             highZ = np.median(self.logO35007O2) < 0
 
         if self.logN2Ha is not None:
+            # C17 N2Ha
             self.mds['C17_N2Ha'] = np.zeros(self.nm) + float('NaN')
+
             coefs = np.array([C17_coefs['N2Ha']] * self.nm).T
             coefs[0] = coefs[0] - self.logN2Ha
+
             sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
 
-            indx = ((sols.real >= 7.1) * (sols.real <= 9.4) *
+            indx = ((sols.real >= valid_lower) * (sols.real <= valid_upper) *
                     (sols.imag == 0)).cumsum(1).cumsum(1) == 1
 
             self.mds['C17_N2Ha'][(indx.sum(1)) > 0] = sols[indx].real
@@ -919,15 +933,33 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
                 highZ = np.median(self.logN2Ha) > -1.3
 
         if self.hasO3 and self.hasN2:
+            # C17 O3N2
             self.mds['C17_O3N2'] = np.zeros(self.nm) + float('NaN')
             coefs = np.array([C17_coefs['O3N2']] * self.nm).T
-            coefs[0] = coefs[0] - np.log(self.O35007 / self.N26584) \
-                       + self.dustcorrect(k_O35007, k_N2, flux=False)
+            o3n2_value = self.logO3Hb - self.logN2Ha
+            coefs[0] = coefs[0] - o3n2_value
+
             sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
-            indx = ((sols.real >= 7.1) * (sols.real <= 9.4) \
+            indx = ((sols.real >= valid_lower) * (sols.real <= valid_upper) \
                     * (sols.imag == 0)).cumsum(1).cumsum(1) == 1
             self.mds['C17_O3N2'][(indx.sum(1)) > 0] = sols[indx].real
 
+        if self.logO3Hb is not None:
+            # C17 O3Hb
+            self.mds['C17_O3Hb'] = np.zeros(self.nm) + float('NaN')
+            coefs = np.array([C17_coefs['O3Hb']] * self.nm).T
+            coefs[0] = coefs[0] - self.logO3Hb
+            sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
+            if highZ is True:
+                indx = ((sols.real >= valid_lower) * (sols.real <= valid_upper) *
+                        (sols.imag == 0) *
+                        (sols.real >= 8.3)).cumsum(1).cumsum(1) == 1
+                self.mds['C17_O3Hb'][(indx.sum(1)) > 0] = sols[indx].real
+            elif highZ is False:
+                indx = ((sols.real >= 8.3) * (sols.real <= valid_upper) *
+                        (sols.imag == 0) *
+                        (sols.real <= 7.9)).cumsum(1).cumsum(1) == 1
+                self.mds['C17_O3Hb'][(indx.sum(1)) > 0] = sols[indx].real
         #  Require allC17 flag if we want everything.
         if not allC17:
             return
@@ -945,28 +977,16 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
             coefs[0] = coefs[0] - self.logR23
             sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
             if highZ is True:
-                indx = ((sols.real >= 7.1) * (sols.real <= 9.4) * (sols.imag == 0) *
-                        (sols.real >= 8.0)).cumsum(1).cumsum(1) == 1
+                indx = ((sols.real >= valid_lower) * (sols.real <= valid_upper) *
+                        (sols.imag == 0) *
+                        (sols.real >= 8.4)).cumsum(1).cumsum(1) == 1
                 self.mds['C17_R23'][(indx.sum(1)) > 0] = sols[indx].real
             elif highZ is False:
-                indx = ((sols.real >= 7.1) * (sols.real <= 9.4) * (sols.imag == 0) *
-                        (sols.real <= 8.0)).cumsum(1).cumsum(1) == 1
+                indx = ((sols.real >= valid_lower) * (sols.real <= valid_upper) *
+                        (sols.imag == 0) *
+                        (sols.real < 8.4)).cumsum(1).cumsum(1) == 1
                 self.mds['C17_R23'][(indx.sum(1)) > 0] = sols[indx].real
 
-        if self.logO3Hb is not None:
-
-            self.mds['C17_O3Hb'] = np.zeros(self.nm) + float('NaN')
-            coefs = np.array([C17_coefs['O3Hb']] * self.nm).T
-            coefs[0] = coefs[0] - self.logO3Hb
-            sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
-            if highZ is True:
-                indx = ((sols.real >= 7.1) * (sols.real <= 9.4) * (sols.imag == 0) *
-                        (sols.real >= 7.9)).cumsum(1).cumsum(1) == 1
-                self.mds['C17_O3Hb'][(indx.sum(1)) > 0] = sols[indx].real
-            elif highZ is False:
-                indx = ((sols.real >= 7.1) * (sols.real <= 9.4) * (sols.imag == 0) *
-                        (sols.real <= 7.9)).cumsum(1).cumsum(1) == 1
-                self.mds['C17_O3Hb'][(indx.sum(1)) > 0] = sols[indx].real
 
         if self.logO2Hb is not None:
             self.mds['C17_O2Hb'] = np.zeros(self.nm) + float('NaN')
@@ -974,12 +994,14 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
             coefs[0] = coefs[0] - self.logO2Hb
             sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
             if highZ is True:
-                indx = ((sols.real >= 7.1) * (sols.real <= 9.4) * (sols.imag == 0) *
+                indx = ((sols.real >= valid_lower) * (sols.real <= 8.3) *
+                        (sols.imag == 0) *
                         (sols.real >= 8.7)).cumsum(1).cumsum(1) == 1
                 self.mds['C17_O2Hb'][(indx.sum(1)) > 0] = sols[indx].real
             elif highZ is False:
-                indx = ((sols.real >= 7.1) * (sols.real <= 9.4) * (sols.imag == 0) *
-                        (sols.real <= 8.7)).cumsum(1).cumsum(1) == 1
+                indx = ((sols.real >= valid_lower) * (sols.real <= 8.3) *
+                        (sols.imag == 0) *
+                        (sols.real <= valid_upper)).cumsum(1).cumsum(1) == 1
                 self.mds['C17_O2Hb'][(indx.sum(1)) > 0] = sols[indx].real
 
 
@@ -1207,7 +1229,7 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
                     convergence = np.abs(self.logq - logq_save).mean()
                     logq_save = self.logq.copy()
                 if ii >= 100:
-                    printsafemulti("WARNING: loop did not converge", self.logf, self.nps)
+                    printsafemulti("WARNING [KK04_N2Ha]: loop did not converge", self.logf, self.nps)
                     Z_new_N2Ha = np.zeros(self.nm) + float('NaN')
             else:
                 self.logq = 7.37177 * np.ones(self.nm)
@@ -1267,7 +1289,7 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
                     convergence = np.abs((logqold - logq).mean())
                     logqold = logq.copy()
                 if ii >= 100:
-                    printsafemulti("WARNING: loop did not converge", self.logf, self.nps)
+                    printsafemulti("WARNING [KK04_R23]: loop did not converge", self.logf, self.nps)
                     Z_new = np.zeros(self.nm) + float('NaN')
                 Z_new_lims = [nppoly.polyval(self.logR23, [9.40, 4.65, -3.17]) - \
                             logq * nppoly.polyval(self.logR23, [0.272, 0.547, -0.513]),
@@ -1438,8 +1460,10 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
             printsafemulti("WARNING: need N2, Ha and SII, ",
                            self.logf, self.nps)
             return -1
-        y = self.logN2S2 + 0.264 * self.logN2Ha
-        self.mds["D16"] = 8.77 + y - 0.45 * pow(y + 0.3, 5)
+
+        d16_n2s2 = np.log10(self.N26584 / (self.S26717+self.S26731)) + self.dustcorrect(k_N2, k_S2, flux=False)
+        y = d16_n2s2 + 0.264 * self.logN2Ha
+        self.mds["D16"] = 8.77 + y# + 0.45 * pow(y + 0.3, 5)
         index = (y < -1.)
         self.mds["D16"][index] = float('NaN')                
         index = (y > 0.5)

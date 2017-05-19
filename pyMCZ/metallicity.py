@@ -273,3 +273,7 @@ def calculation(mscales, measured, num, mds, nps, logf, dust_corr=True,
     if 'C17' in mds:
         # Curti+ 2017
         mscales.calcC17()
+    if 'C17all' in mds:
+        # Curti+ 2017
+        mscales.calcC17(allC17=True)
+
