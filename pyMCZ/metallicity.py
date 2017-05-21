@@ -54,7 +54,8 @@ Zs = ["E(B-V)",  # based on Halpha, Hbeta
     "KK04_R23",  # Hbeta,  [OII]3727, [OIII]5007, ([OIII]4959 )
     "KD02comb",
     "PM14",
-    "D16",
+    "D16",  # Dopita (2016)
+    "PG16_R","PG16_S", # Pilyugin & Grebel (2016)
     "C17_O3O2", "C17_O3N2","C17_N2Ha","C17_O2Hb","C17_O3Hb","C17_R23"]  # ,"KK04comb"]
 #'KD02_N2O2', 'KD03new_R23', 'M91', 'KD03_N2Ha'
 
@@ -185,7 +186,7 @@ def calculation(mscales, measured, num, mds, nps, logf, dust_corr=True,
         mscales.calcPP04()
 
         #mscales.calcP05()
-        mscales.calcP10()
+        #mscales.calcP10()
 
         mscales.calcM08()
         mscales.calcM13()
@@ -197,6 +198,7 @@ def calculation(mscales, measured, num, mds, nps, logf, dust_corr=True,
         mscales.calcKDcombined()
 
         mscales.calcD16()
+        mscales.calcPG16()
         mscales.calcC17()
 
     if 'DP00' in mds:
@@ -270,6 +272,9 @@ def calculation(mscales, measured, num, mds, nps, logf, dust_corr=True,
     if 'D16' in mds:
         # Dopita+ 2016
         mscales.calcD16()
+    if 'PG16' in mds:
+        # Pilyugin & Grebel 2016
+        mscales.calcPG16()
     if 'C17' in mds:
         # Curti+ 2017
         mscales.calcC17()

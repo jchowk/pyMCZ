@@ -5,6 +5,8 @@ import scipy.stats as  stats
 import numpy.polynomial.polynomial as nppoly
 from metallicity import get_keys, printsafemulti
 
+import pdb
+
 niter = 5  # number of iteations+1 for KD02 methods
 
 k_Ha = 2.535  # CCM Rv=3.1
@@ -873,134 +875,6 @@ did you set them up with  setOlines()?''', self.logf, self.nps)
             printsafemulti('''WARNING: needs [NII]6584, [SII]6717, [OIII]5700, [OII]3727, and Ha to calculate calcC01_ZR23, 
 did you set them up with  setOlines() and ?''', self.logf, self.nps)
 
-    def calcC17(self, allC17=False):
-        # Curti+ 2017
-        # Monthly Notices Royal Astronomical Society, vol. 465, pp 1384-1400
-        # Published in October 2016
-        #
-        # Added 5/16/17 by jch, Santiago
-        import pdb
-
-        valid_upper = 8.85
-        valid_lower = 7.6
-
-        printsafemulti("calculating C17", self.logf, self.nps)
-        highZ = None
-
-        if self.logO35007O2 is not None:
-            # C17 O3O2
-            self.mds['C17_O3O2'] = np.zeros(self.nm) + float('NaN')
-            coefs = np.array([C17_coefs['O3O2']] * self.nm).T
-            coefs[0] = coefs[0] - self.logO35007O2
-
-            # sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
-            sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
-
-            # Find valid solutions
-            indx = ((sols.real >= valid_lower) * (sols.real <= valid_upper) *
-                    (sols.imag == 0)).cumsum(1).cumsum(1) == 1
-
-            # the two cumsum assure that if the condition for the ith element
-            # of indx is [False, False] then after the first cumsum(1) is [0,0]
-            # [False, True] is [0,1]
-            # [True, True] is [1,2]
-            # but (here is the kicker) [True, False] is [1,1].
-            # Because i want only one solution
-            # (i'll settle for the first one occurring) [1,1] is ambiguous.
-            # The second cumsum(1) makes
-            # [0,0]->[0,0], [0,1]->[0,1], [1,2]->[1,3] and finally [1,1]->[1,2]
-
-            # Set the results where appropriate
-            self.mds['C17_O3O2'][(indx.sum(1)) > 0] = sols[indx].real
-
-            # Now use this to see if we're on the high-Z branch of R23
-            highZ = np.median(self.logO35007O2) < 0
-
-        if self.logN2Ha is not None:
-            # C17 N2Ha
-            self.mds['C17_N2Ha'] = np.zeros(self.nm) + float('NaN')
-
-            coefs = np.array([C17_coefs['N2Ha']] * self.nm).T
-            coefs[0] = coefs[0] - self.logN2Ha
-
-            sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
-
-            indx = ((sols.real >= valid_lower) * (sols.real <= valid_upper) *
-                    (sols.imag == 0)).cumsum(1).cumsum(1) == 1
-
-            self.mds['C17_N2Ha'][(indx.sum(1)) > 0] = sols[indx].real
-            if highZ is None:
-                highZ = np.median(self.logN2Ha) > -1.3
-
-        if self.hasO3 and self.hasN2:
-            # C17 O3N2
-            self.mds['C17_O3N2'] = np.zeros(self.nm) + float('NaN')
-            coefs = np.array([C17_coefs['O3N2']] * self.nm).T
-            o3n2_value = self.logO3Hb - self.logN2Ha
-            coefs[0] = coefs[0] - o3n2_value
-
-            sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
-            indx = ((sols.real >= valid_lower) * (sols.real <= valid_upper) \
-                    * (sols.imag == 0)).cumsum(1).cumsum(1) == 1
-            self.mds['C17_O3N2'][(indx.sum(1)) > 0] = sols[indx].real
-
-        if self.logO3Hb is not None:
-            # C17 O3Hb
-            self.mds['C17_O3Hb'] = np.zeros(self.nm) + float('NaN')
-            coefs = np.array([C17_coefs['O3Hb']] * self.nm).T
-            coefs[0] = coefs[0] - self.logO3Hb
-            sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
-
-            # C17 define this only for the high-metal branch.
-            indx = ((sols.real >= 8.2) * (sols.real <= valid_upper) *
-                    (sols.imag == 0)).cumsum(1).cumsum(1) == 1
-            self.mds['C17_O3Hb'][(indx.sum(1)) > 0] = sols[indx].real
-
-        #  Require allC17 flag if we want everything.
-        if not allC17:
-            return
-        else:
-            printsafemulti("calculating other C17s", self.logf, self.nps)
-
-        if self.logR23 is None:
-            printsafemulti("WARNING: Must first calculate R23", self.logf, self.nps)
-            self.calcR23()
-        if self.logR23 is None:
-            printsafemulti("WARNING: Cannot compute C17_R23 without R23", self.logf, self.nps)
-        else:
-            self.mds['C17_R23'] = np.zeros(self.nm) + float('NaN')
-            coefs = np.array([C17_coefs['R23']] * self.nm).T
-            coefs[0] = coefs[0] - self.logR23
-            sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
-            if highZ is True:
-                indx = ((sols.real >= valid_lower) * (sols.real <= valid_upper) *
-                        (sols.imag == 0) *
-                        (sols.real >= 8.4)).cumsum(1).cumsum(1) == 1
-                self.mds['C17_R23'][(indx.sum(1)) > 0] = sols[indx].real
-            elif highZ is False:
-                indx = ((sols.real >= valid_lower) * (sols.real <= valid_upper) *
-                        (sols.imag == 0) *
-                        (sols.real < 8.4)).cumsum(1).cumsum(1) == 1
-                self.mds['C17_R23'][(indx.sum(1)) > 0] = sols[indx].real
-
-
-        if self.logO2Hb is not None:
-            self.mds['C17_O2Hb'] = np.zeros(self.nm) + float('NaN')
-            coefs = np.array([C17_coefs['O2Hb']] * self.nm).T
-            coefs[0] = coefs[0] - self.logO2Hb
-            sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
-            if highZ is True:
-                indx = ((sols.real >= valid_lower) * (sols.real <= 8.3) *
-                        (sols.imag == 0) *
-                        (sols.real >= 8.7)).cumsum(1).cumsum(1) == 1
-                self.mds['C17_O2Hb'][(indx.sum(1)) > 0] = sols[indx].real
-            elif highZ is False:
-                indx = ((sols.real >= valid_lower) * (sols.real <= 8.3) *
-                        (sols.imag == 0) *
-                        (sols.real <= valid_upper)).cumsum(1).cumsum(1) == 1
-                self.mds['C17_O2Hb'][(indx.sum(1)) > 0] = sols[indx].real
-
-
     #@profile
     def calcM91(self):
         # ## calculating McGaugh (1991)
@@ -1447,6 +1321,9 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
         print (self.mds)
         os.system('rm -r C13*dat')
 
+
+########## jch additions
+
     #@profile
     def calcD16(self):
         #Dopita+ 2016
@@ -1466,3 +1343,181 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
         self.mds["D16"][index] = float('NaN')                
 
         
+    def calcC17(self, allC17=False):
+        # Curti+ 2017
+        # Monthly Notices Royal Astronomical Society, vol. 465, pp 1384-1400
+        # Published in October 2016
+        #
+        # Added 5/16/17 by jch, Santiago
+        import pdb
+
+        valid_upper = 8.85
+        valid_lower = 7.6
+
+        printsafemulti("calculating C17", self.logf, self.nps)
+        highZ = None
+
+        if self.logO35007O2 is not None:
+            # C17 O3O2
+            self.mds['C17_O3O2'] = np.zeros(self.nm) + float('NaN')
+            coefs = np.array([C17_coefs['O3O2']] * self.nm).T
+            coefs[0] = coefs[0] - self.logO35007O2
+
+            # sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
+            sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
+
+            # Find valid solutions
+            indx = ((sols.real >= valid_lower) * (sols.real <= valid_upper) *
+                    (sols.imag == 0)).cumsum(1).cumsum(1) == 1
+
+            # the two cumsum assure that if the condition for the ith element
+            # of indx is [False, False] then after the first cumsum(1) is [0,0]
+            # [False, True] is [0,1]
+            # [True, True] is [1,2]
+            # but (here is the kicker) [True, False] is [1,1].
+            # Because i want only one solution
+            # (i'll settle for the first one occurring) [1,1] is ambiguous.
+            # The second cumsum(1) makes
+            # [0,0]->[0,0], [0,1]->[0,1], [1,2]->[1,3] and finally [1,1]->[1,2]
+
+            # Set the results where appropriate
+            self.mds['C17_O3O2'][(indx.sum(1)) > 0] = sols[indx].real
+
+            # Now use this to see if we're on the high-Z branch of R23
+            highZ = np.median(self.logO35007O2) < 0
+
+        if self.logN2Ha is not None:
+            # C17 N2Ha
+            self.mds['C17_N2Ha'] = np.zeros(self.nm) + float('NaN')
+
+            coefs = np.array([C17_coefs['N2Ha']] * self.nm).T
+            coefs[0] = coefs[0] - self.logN2Ha
+
+            sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
+
+            indx = ((sols.real >= valid_lower) * (sols.real <= valid_upper) *
+                    (sols.imag == 0)).cumsum(1).cumsum(1) == 1
+
+            self.mds['C17_N2Ha'][(indx.sum(1)) > 0] = sols[indx].real
+            if highZ is None:
+                highZ = np.median(self.logN2Ha) > -1.3
+
+        if self.hasO3 and self.hasN2:
+            # C17 O3N2
+            self.mds['C17_O3N2'] = np.zeros(self.nm) + float('NaN')
+            coefs = np.array([C17_coefs['O3N2']] * self.nm).T
+            o3n2_value = self.logO3Hb - self.logN2Ha
+            coefs[0] = coefs[0] - o3n2_value
+
+            sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
+            indx = ((sols.real >= valid_lower) * (sols.real <= valid_upper) \
+                    * (sols.imag == 0)).cumsum(1).cumsum(1) == 1
+            self.mds['C17_O3N2'][(indx.sum(1)) > 0] = sols[indx].real
+
+        if self.logO3Hb is not None:
+            # C17 O3Hb
+            self.mds['C17_O3Hb'] = np.zeros(self.nm) + float('NaN')
+            coefs = np.array([C17_coefs['O3Hb']] * self.nm).T
+            coefs[0] = coefs[0] - self.logO3Hb
+            sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
+
+            # C17 define this only for the high-metal branch.
+            indx = ((sols.real >= 8.2) * (sols.real <= valid_upper) *
+                    (sols.imag == 0)).cumsum(1).cumsum(1) == 1
+            self.mds['C17_O3Hb'][(indx.sum(1)) > 0] = sols[indx].real
+
+        #  Require allC17 flag if we want everything.
+        if not allC17:
+            return
+        else:
+            printsafemulti("calculating other C17s", self.logf, self.nps)
+
+        if self.logR23 is None:
+            printsafemulti("WARNING: Must first calculate R23", self.logf, self.nps)
+            self.calcR23()
+        if self.logR23 is None:
+            printsafemulti("WARNING: Cannot compute C17_R23 without R23", self.logf, self.nps)
+        else:
+            self.mds['C17_R23'] = np.zeros(self.nm) + float('NaN')
+            coefs = np.array([C17_coefs['R23']] * self.nm).T
+            coefs[0] = coefs[0] - self.logR23
+            sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
+            if highZ is True:
+                indx = ((sols.real >= valid_lower) * (sols.real <= valid_upper) *
+                        (sols.imag == 0) *
+                        (sols.real >= 8.4)).cumsum(1).cumsum(1) == 1
+                self.mds['C17_R23'][(indx.sum(1)) > 0] = sols[indx].real
+            elif highZ is False:
+                indx = ((sols.real >= valid_lower) * (sols.real <= valid_upper) *
+                        (sols.imag == 0) *
+                        (sols.real < 8.4)).cumsum(1).cumsum(1) == 1
+                self.mds['C17_R23'][(indx.sum(1)) > 0] = sols[indx].real
+
+
+        if self.logO2Hb is not None:
+            self.mds['C17_O2Hb'] = np.zeros(self.nm) + float('NaN')
+            coefs = np.array([C17_coefs['O2Hb']] * self.nm).T
+            coefs[0] = coefs[0] - self.logO2Hb
+            sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
+            if highZ is True:
+                indx = ((sols.real >= valid_lower) * (sols.real <= 8.3) *
+                        (sols.imag == 0) *
+                        (sols.real >= 8.7)).cumsum(1).cumsum(1) == 1
+                self.mds['C17_O2Hb'][(indx.sum(1)) > 0] = sols[indx].real
+            elif highZ is False:
+                indx = ((sols.real >= valid_lower) * (sols.real <= 8.3) *
+                        (sols.imag == 0) *
+                        (sols.real <= valid_upper)).cumsum(1).cumsum(1) == 1
+                self.mds['C17_O2Hb'][(indx.sum(1)) > 0] = sols[indx].real
+
+
+
+    def calcPG16(self):
+        # Pilyugin & Grebel (2016, MNRAS, 457, 3678)
+        printsafemulti("calculating PG16", self.logf, self.nps)
+
+        # Initialize the PG16 results
+        self.mds['PG16'] = np.zeros(self.nm) + float('NaN')
+
+        # Make sure the lines are all here...
+        if not self.hasHa or not self.hasN2 or not self.hasO2 or not self.hasO3 or not self.hasS2:
+            printsafemulti("WARNING: need O2, O3, N2, S2, and Hb",
+                           self.logf, self.nps)
+            return -1
+
+        pilR2 = self.logO2Hb
+        pilR3 = self.logO3Hb+np.log10(1.33) # Both members of doublet
+        pilR3R2 = (pilR3-pilR2)
+
+        # Calculate S2/Hb = S2/Ha * Ha/Hb = S2/Ha*2.85
+        pilS2 = np.log10((self.S26731 + self.S26731) / self.Ha * 2.85)
+        pilS2 += np.log10(self.dustcorrect(k_S2,k_Ha,flux=True))
+        pilR3S2 = (pilR3-pilS2)
+
+        # Calculate N2/Hb = N2/Ha * Ha/Hb = N2/Ha*2.85
+        pilN2 = np.log10((self.N26584*1.33 / self.Ha)*2.85)
+        # pilN2 += np.log10(self.dustcorrect(k_N2,k_Hb,flux=True))
+
+        # Determine which branch we're on
+        highZ = (np.median(pilN2) >= -0.6)
+        print(np.median(pilN2))
+
+        # Calculate R = O2O3N2 abundances
+        if highZ == True:
+            print('PG16 high metal branch')
+            self.mds['PG16_R'] = 8.589+0.022*pilR3R2+0.399*pilN2
+            self.mds['PG16_R'] += (-0.137+0.164*pilR3R2+0.589*pilN2)*pilR2
+        else:
+            print('PG16 low metal branch')
+            self.mds['PG16_R'] = 7.932+0.944*pilR3R2+0.695*pilN2
+            self.mds['PG16_R'] += (0.970-0.291*pilR3R2-0.019*pilN2)*pilR2
+
+        # Calculate S = S2O3N2 abundances
+        if highZ == True:
+            print('PG16 high metal branch')
+            self.mds['PG16_S'] = 8.424+0.030*pilR3S2+0.751*pilN2
+            self.mds['PG16_S'] += (-0.349+0.182*pilR3S2+0.508*pilN2)*pilS2
+        else:
+            print('PG16 low metal branch')
+            self.mds['PG16_S'] = 8.072+0.789*pilR3S2+0.726*pilN2
+            self.mds['PG16_S'] += (1.069-0.17*pilR3S2+0.022*pilN2)*pilS2
