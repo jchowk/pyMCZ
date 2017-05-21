@@ -54,10 +54,10 @@ Zs = ["E(B-V)",  # based on Halpha, Hbeta
     "KK04_R23",  # Hbeta,  [OII]3727, [OIII]5007, ([OIII]4959 )
     "KD02comb",
     "PM14",
-    "D16",  # Dopita (2016)
+    "B07", # Bresolin (2007) N2O2
+    "D16",  # Dopita (2016) ONS
     "PG16_R","PG16_S", # Pilyugin & Grebel (2016)
-    "C17_O3O2", "C17_O3N2","C17_N2Ha","C17_O2Hb","C17_O3Hb","C17_R23"]  # ,"KK04comb"]
-#'KD02_N2O2', 'KD03new_R23', 'M91', 'KD03_N2Ha'
+    "C17_O3O2", "C17_O3N2","C17_N2Ha","C17_O2Hb","C17_O3Hb","C17_R23"]
 
 
 Zserr = ['PM14err']  # ,"KK04comb"]
@@ -269,8 +269,11 @@ def calculation(mscales, measured, num, mds, nps, logf, dust_corr=True,
         mscales.calcKDcombined()
 
     # Modifications by jch [5/2017, Santiago] to include newer scales.
+    if 'B07' in mds:
+        # Bresolin 2007 N2O2
+        mscales.calcB07()
     if 'D16' in mds:
-        # Dopita+ 2016
+        # Dopita+ 2016 ONS
         mscales.calcD16()
     if 'PG16' in mds:
         # Pilyugin & Grebel 2016

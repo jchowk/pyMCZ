@@ -1324,6 +1324,25 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
 
 ########## jch additions
 
+
+    #@profile
+    def calcB07(self):
+        #Bresolin 2007 - N2O2
+        printsafemulti("calculating B07", self.logf, self.nps)
+
+        if not self.hasHa  or not self.hasN2 or not self.hasO2:
+            printsafemulti("WARNING: need N2, O2 ",
+                           self.logf, self.nps)
+            return -1
+
+        y = 8.66 + 0.36*self.logN2O2 - 0.17*self.logN2O2**2
+        self.mds["B07"] = y
+        index = (self.logN2O2 < -1.2)
+        self.mds["B07"][index] = float('NaN')
+        index = (self.logN2O2 > 0.6)
+        self.mds["B07"][index] = float('NaN')
+
+
     #@profile
     def calcD16(self):
         #Dopita+ 2016
