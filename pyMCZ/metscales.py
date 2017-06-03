@@ -400,15 +400,15 @@ class diagnostics:
     #@profile
     def calcEB_V(self):
         printsafemulti("calculating E(B-V)", self.logf, self.nps)
-        self.mds['E(B-V)'] = np.log10(2.86 * self.Hb / self.Ha) / (0.4 * (k_Ha - k_Hb))  # E(B-V)
+        a2b_intrinsic = 2.86
+        self.mds['E(B-V)'] = np.log10(a2b_intrinsic * self.Hb / self.Ha) / (0.4 * (k_Ha - k_Hb))  # E(B-V)
         self.mds['E(B-V)'][self.mds['E(B-V)'] <= 0] = 1e-5
 
     #@profile
     def calcEB_Vblue(self):
         printsafemulti("calculating E(B-V)_blue", self.logf, self.nps)
-        gamma_beta_intrinsic = 2.145
-        self.mds['E(B-V)'] = np.log10(gamma_beta_intrinsic
-                                      * self.Hg / self.Hb) / (0.4 * (k_Hb - k_Hg))  # E(B-V)
+        b2g_intrinsic = 2.145
+        self.mds['E(B-V)'] = np.log10(b2g_intrinsic * self.Hg / self.Hb) / (0.4 * (k_Hb - k_Hg))  # E(B-V)
         self.mds['E(B-V)'][self.mds['E(B-V)'] <= 0] = 1e-5
 
     #@profile
