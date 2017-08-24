@@ -28,6 +28,7 @@ if DROPNEGATIVES:
 ##list of metallicity methods, in order calculated
 Zs = ["E(B-V)",  # based on Halpha, Hbeta
     "E(B-V)blue",  # based on Hbeta, Hgamma
+    "C(Hbeta)",
     "logR23",  # Hbeta,  [OII]3727, [OIII]5007, [OIII]4959
 
     "D02",  # Halpha, [NII]6584

@@ -51,7 +51,7 @@ N2S2_coef[:,6]=[-2910.63,1392.18,-249.012,19.7280,-0.583763]
 
 O3O2_coef=np.zeros((4,8))        # coefficients from model grid fits
 O3O2c0=[-36.9772,-74.2814,-36.7948,-81.1880,-52.6367,-86.8674,-24.4044,49.4728]
-O3O2_coef[:,0]=[-36.9772,10.2838,-0.957421,0.0328614] #z=0.05 
+O3O2_coef[:,0]=[-36.9772,10.2838,-0.957421,0.0328614] #z=0.05
 O3O2_coef[:,1]=[-74.2814,24.6206,-2.79194,0.110773]    # z=0.1
 O3O2_coef[:,2]=[-36.7948,10.0581,-0.914212,0.0300472]  # z=0.2
 O3O2_coef[:,3]=[-81.1880,27.5082,-3.19126,0.128252]    # z=0.5
@@ -240,7 +240,7 @@ class diagnostics:
             except (IndexError, TypeError):
                 if verbose:
                     print (self.mds[k])
-    
+
     def checkminimumreq(self, red_corr, ignoredust):
         if red_corr and not ignoredust:
             if not self.hasHa:
@@ -336,7 +336,7 @@ class diagnostics:
             if self.hasO2:
                 self.logO2Hb = np.log10(self.O23727 / self.Hb) + \
                                self.dustcorrect(k_O2, k_Hb, flux=False)
-                               # 0.4*self.mds['E(B-V)']*(k_O2-k_Hb) 
+                               # 0.4*self.mds['E(B-V)']*(k_O2-k_Hb)
             if self.hasO3:
                 self.O3Hb = (self.O35007 / self.Hb) * \
                             self.dustcorrect(k_O35007, k_Hb, flux=True)
@@ -361,13 +361,13 @@ class diagnostics:
             self.N26584 = N26584
             self.hasN2 = True
             if self.hasHa:
-                self.logN2Ha = np.log10(self.N26584 / self.Ha)  # +self.dustcorrect(k_N2,k_Ha,flux=True) 
+                self.logN2Ha = np.log10(self.N26584 / self.Ha)  # +self.dustcorrect(k_N2,k_Ha,flux=True)
                 #lines are very close: no dust correction
                 #Note: no dust correction cause the lies are really close!
             else:
                 printsafemulti("WARNING: needs NII6584 and Ha to calculate NIIHa: did you run setHab()?", self.logf, self.nps)
             if self.hasS2 and self.hasS26731 and self.hasN2:
-                self.NII_SII = np.log10(self.N26584 / (self.S26717 + self.S26731))  # +self.dustcorrect(k_N2,k_S2,flux=True) 
+                self.NII_SII = np.log10(self.N26584 / (self.S26717 + self.S26731))  # +self.dustcorrect(k_N2,k_S2,flux=True)
                 #lines are very close: no dust correction
             if self.hasO2 and self.hasN2:
                 self.NII_OII = np.log10(self.N26584 / self.O23727 * self.dustcorrect(k_N2, k_O2, flux=True))
@@ -392,7 +392,7 @@ class diagnostics:
             self.hasS39532 = True
         if self.hasS2:
             if self.hasN2 and self.NII_SII is None and self.hasS26731:
-                self.NII_SII = np.log10(self.N26584 / (self.S26717 + self.S26731))  # +self.dustcorrect(k_N2,k_O2,flux=True) 
+                self.NII_SII = np.log10(self.N26584 / (self.S26717 + self.S26731))  # +self.dustcorrect(k_N2,k_O2,flux=True)
                 #lines are very close: no dust correction
             if self.hasO3  and self.OIII_SII is None and self.hasS26731:
                 self.OIII_SII = np.log10(self.O35007 / (self.S26717 + self.S26731) * self.dustcorrect(k_O3, k_S2, flux=True))
@@ -428,11 +428,11 @@ class diagnostics:
         if not self.hasN2O2 or np.mean(self.logN2O2) < -1.2:
 
             try:
-                printsafemulti('''WARNING: the KD02 and KK04 (+M08) methods should only be used for  log([NII]6564/[OII]3727) > -1.2, 
+                printsafemulti('''WARNING: the KD02 and KK04 (+M08) methods should only be used for  log([NII]6564/[OII]3727) > -1.2,
                 the mean log([NII]6564/[OII]3727)= %f''' % np.mean(self.logN2O2), self.logf, self.nps)
             except TypeError:
-                printsafemulti('''WARNING: the KD02 and KK04 (+M08) methods 
-                should only be used for  log([NII]6564/[OII]3727) >-1.2, 
+                printsafemulti('''WARNING: the KD02 and KK04 (+M08) methods
+                should only be used for  log([NII]6564/[OII]3727) >-1.2,
                 the mean log([NII]6564/[OII]3727)= %s''' % self.logN2O2, self.logf, self.nps)
 
         if not self.hasN2O2:
@@ -581,7 +581,7 @@ class diagnostics:
                                                              show_plot=plot, n_plot=False, \
                                                              save_plot=False, verbose=False)[0].T
 
-                    
+
         if self.NII_OII is not None and allD13:
             if self.OIII_SII  is not None:
                 if oldpyqz:
@@ -777,7 +777,7 @@ class diagnostics:
             #independent on physical conditions
             #The Physics and Dynamics of Planetary Nebulae
             # By Grigor A. Gurzadyan
-            P10logN2 = (np.log((self.N26584 * 1.33) / self.Hb) 
+            P10logN2 = (np.log((self.N26584 * 1.33) / self.Hb)
                         + self.dustcorrect(k_N2, k_Hb, flux=False))
 
         if self.hasS2 and self.hasS26731:
@@ -861,7 +861,7 @@ class diagnostics:
 
             self.mds['C01_R23'][self.O2O35007 >= 0.8] = np.log10(3.96e-4 * x3[self.O2O35007 >= 0.8] ** (-0.46)) + 12.0
         else:
-            printsafemulti('''WARNING: need [OIII]5700, [OII]3727, and Ha to calculate calcC01_ZR23, 
+            printsafemulti('''WARNING: need [OIII]5700, [OII]3727, and Ha to calculate calcC01_ZR23,
 did you set them up with  setOlines()?''', self.logf, self.nps)
 
         # Charlot 01 calibration: (case A) based on [N2]/[SII]##
@@ -872,7 +872,7 @@ did you set them up with  setOlines()?''', self.logf, self.nps)
         if self.hasN2S2 and self.hasO3 and self.hasO2 and self.hasO3Hb:
             self.mds['C01_N2S2'] = np.log10(5.09e-4 * (x2 ** 0.17) * ((self.N2S2 / 0.85) ** 1.17)) + 12
         else:
-            printsafemulti('''WARNING: needs [NII]6584, [SII]6717, [OIII]5700, [OII]3727, and Ha to calculate calcC01_ZR23, 
+            printsafemulti('''WARNING: needs [NII]6584, [SII]6717, [OIII]5700, [OII]3727, and Ha to calculate calcC01_ZR23,
 did you set them up with  setOlines() and ?''', self.logf, self.nps)
 
     #@profile
@@ -923,7 +923,7 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
         printsafemulti("calculating M13", self.logf, self.nps)
 
         if not self.hasHa  or not self.hasN2:
-            printsafemulti("WARNING: need O3, N2, Ha and Hb, " + 
+            printsafemulti("WARNING: need O3, N2, Ha and Hb, " +
                            "or at least N2 and Ha", self.logf, self.nps)
             return -1
         else:
@@ -935,18 +935,18 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
                 e2 = np.random.normal(0, 0.012, self.nm)
                 O3N2 = self.logO3Hb - self.logN2Ha
                 self.mds["M13_O3N2"] = 8.533 + e1 - (0.214 + e1) * O3N2
-                index = (O3N2 > 1.7) 
+                index = (O3N2 > 1.7)
                 self.mds["M13_O3N2"][index] = float('NaN')
                 index = (O3N2 < -1.1)
                 self.mds["M13_O3N2"][index] = float('NaN')
-                
+
                 #for i in range(len(self.mds["M13_O3N2"])):
                     #print ("here O3N2",#self.O35007[i], self.Hb[i],
-                           #self.O3Hb[i], 
+                           #self.O3Hb[i],
                            #self.logO3Hb[i], self.logN2Ha[i],
-                    #       O3N2[i], 
+                    #       O3N2[i],
                     #       self.mds["M13_O3N2"][i])
-                
+
     #@profile
     def calcM08(self, allM08=False):
         #Maiolino+ 2008
@@ -1033,7 +1033,7 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
         if self.hasO3  and self.hasN2:
             self.mds['M08_O3N2'] = np.zeros(self.nm) + float('NaN')
             coefs = np.array([M08_coefs['O3N2']] * self.nm).T
-            coefs[0] = coefs[0] - np.log(self.O35007 / self.N26584) \
+            coefs[0] = coefs[0] - np.log10(self.O35007 / self.N26584) \
                        + self.dustcorrect(k_O35007, k_N2, flux=False)
             sols = np.array([self.fz_roots(coefs.T)])[0] + 8.69
             indx = ((sols.real >= 7.1) * (sols.real <= 9.4)\
@@ -1278,7 +1278,7 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
             ratios[2] = self.O3Hb
         elif self.hasO3:
             ratios[2] = ((self.O35007 / self.Hb)
-                         * self.dustcorrect(k_O35007, k_Hb, flux=True))  # 0.4*self.mds['E(B-V)']*(k_O2-k_Hb) 
+                         * self.dustcorrect(k_O35007, k_Hb, flux=True))  # 0.4*self.mds['E(B-V)']*(k_O2-k_Hb)
         else:
             ratios[2] = np.zeros(self.nm)
 
@@ -1295,7 +1295,7 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
         else:
             ratios[4] = np.zeros(self.nm)
 
-        
+
         for ni in range(self.nm):
             fin_hii_chi.write('%f %f %f %f %f\n' % (ratios[0][ni], ratios[1][ni], ratios[2][ni], ratios[3][ni], ratios[4][ni]))
         fin_hii_chi.close()
@@ -1357,11 +1357,11 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
         y = d16_n2s2 + 0.264 * self.logN2Ha
         self.mds["D16"] = 8.77 + y# + 0.45 * pow(y + 0.3, 5)
         index = (y < -1.)
-        self.mds["D16"][index] = float('NaN')                
+        self.mds["D16"][index] = float('NaN')
         index = (y > 0.5)
-        self.mds["D16"][index] = float('NaN')                
+        self.mds["D16"][index] = float('NaN')
 
-        
+
     def calcC17(self, allC17=False):
         # Curti+ 2017
         # Monthly Notices Royal Astronomical Society, vol. 465, pp 1384-1400
