@@ -1324,6 +1324,18 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
 
 ########## jch additions
 
+    def calcPMC09(self):
+        #Perez-Montero & Contini (2009) - N2Ha
+        printsafemulti("calculating PMC09", self.logf, self.nps)
+
+        if not self.hasHa  or not self.hasN2 or not self.hasHa:
+            printsafemulti("WARNING: need N2, Ha ",
+                           self.logf, self.nps)
+            return -1
+            PMC09_N2 = lambda x: 9.07+0.79*x
+
+        y = 9.07 + 0.78*self.logN2Ha
+        self.mds["PMC09_N2Ha"] = y
 
     #@profile
     def calcB07(self):
