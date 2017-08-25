@@ -1,6 +1,6 @@
 ##############################################################################
-## Calculates oxygen abundance (here called metalicity) based on strong emission lines, 
-## based on code originally written in IDL by Lisa Kewley (Kewley & Ellison 2008). Outputs 
+## Calculates oxygen abundance (here called metalicity) based on strong emission lines,
+## based on code originally written in IDL by Lisa Kewley (Kewley & Ellison 2008). Outputs
 ## oxygen abundance in many different diagnostics (see Bianco et al. 2016).
 ##
 ##new calculation based on the most recent version of the .pro file.
@@ -24,7 +24,7 @@ FIXNEGATIVES = True  # set to true if no negative flux measurements should be al
 DROPNEGATIVES = False  # set to true if no negative flux measurements should be allowed. all negative flux measurements are dropped
 if DROPNEGATIVES:
     FIXNEGATIVES = False
-    
+
 ##list of metallicity methods, in order calculated
 Zs = ["E(B-V)",  # based on Halpha, Hbeta
     "E(B-V)blue",  # based on Hbeta, Hgamma
@@ -55,7 +55,7 @@ Zs = ["E(B-V)",  # based on Halpha, Hbeta
     "KK04_R23",  # Hbeta,  [OII]3727, [OIII]5007, ([OIII]4959 )
     "KD02comb",
     "PM14",
-    "B07", # Bresolin (2007) N2O2
+    "B07_N2O2", # Bresolin (2007) N2O2
     "D16",  # Dopita (2016) ONS
     "PG16_R","PG16_S", # Pilyugin & Grebel (2016)
     "C17_O3O2", "C17_O3N2","C17_N2Ha","C17_O2Hb","C17_O3Hb","C17_R23"]
@@ -84,7 +84,7 @@ def printsafemulti(string, logf, nps):
 
 
 ##############################################################################
-##fz_roots function as used in the IDL code 
+##fz_roots function as used in the IDL code
 ##############################################################################
 
 #@profile
@@ -127,11 +127,11 @@ def calculation(mscales, measured, num, mds, nps, logf, dust_corr=True,
     elif dust_corr and not IGNOREDUST:
 
         if nps > 1:
-            print ('''WARNING: reddening correction cannot be done 
+            print ('''WARNING: reddening correction cannot be done
             without both H_alpha and H_beta measurement!!''')
 
         else:
-            response = raw_input('''WARNING: reddening correction cannot be done without both H_alpha and H_beta measurement!! 
+            response = raw_input('''WARNING: reddening correction cannot be done without both H_alpha and H_beta measurement!!
             Continuing without reddening correction? [Y/n]\n''').lower()
             assert(not (response.startswith('n'))), "please fix the input file to include Ha and Hb measurements"
 
@@ -177,7 +177,7 @@ def calculation(mscales, measured, num, mds, nps, logf, dust_corr=True,
                 sys.path.insert(0, cmd_folder)
             mscales.calcpyqz()
         else:
-            printsafemulti('''WARNING: CANNOT CALCULATE pyqz: 
+            printsafemulti('''WARNING: CANNOT CALCULATE pyqz:
             set path to pyqz as environmental variable :
             export PYQZ_DIR="your/path/where/pyqz/resides/ in bash, for example, if you want this scale. \n''', logf, nps)
 
@@ -220,8 +220,8 @@ def calculation(mscales, measured, num, mds, nps, logf, dust_corr=True,
             #using the commented line below instead
             mscales.calcpyqz(plot=disp)
         else:
-            printsafemulti('''WARNING: CANNOT CALCULATE pyqz: 
-            set path to pyqz as environmental variable 
+            printsafemulti('''WARNING: CANNOT CALCULATE pyqz:
+            set path to pyqz as environmental variable
             PYQZ_DIR if you want this scale. ''', logf, nps)
 
     if 'D13all' in mds:
@@ -235,8 +235,8 @@ def calculation(mscales, measured, num, mds, nps, logf, dust_corr=True,
             #using the commented line below instead
             mscales.calcpyqz(plot=disp, allD13=True)
         else:
-            printsafemulti('''WARNING: CANNOT CALCULATE pyqz: 
-            set path to pyqz as environmental variable 
+            printsafemulti('''WARNING: CANNOT CALCULATE pyqz:
+            set path to pyqz as environmental variable
             PYQZ_DIR if you want this scale. ''', logf, nps)
 
     if 'PM14' in mds:
@@ -285,4 +285,3 @@ def calculation(mscales, measured, num, mds, nps, logf, dust_corr=True,
     if 'C17all' in mds:
         # Curti+ 2017
         mscales.calcC17(allC17=True)
-

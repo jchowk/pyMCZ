@@ -1336,11 +1336,11 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
             return -1
 
         y = 8.66 + 0.36*self.logN2O2 - 0.17*self.logN2O2**2
-        self.mds["B07"] = y
+        self.mds["B07_N2O2"] = y
         index = (self.logN2O2 < -1.2)
-        self.mds["B07"][index] = float('NaN')
+        self.mds["B07_N2O2"][index] = float('NaN')
         index = (self.logN2O2 > 0.6)
-        self.mds["B07"][index] = float('NaN')
+        self.mds["B07_N2O2"][index] = float('NaN')
 
 
     #@profile

@@ -35,7 +35,7 @@ import multiprocessing as mpc
 # Define the version of
 __version__ = '1.3.1'
 
-NM0 = 0  # setting this to say N>0 starts the calculation at measurement N. 
+NM0 = 0  # setting this to say N>0 starts the calculation at measurement N.
 #this is only for exploratory purposes as the code bugs out before
 #plotting and printing the results
 
@@ -151,7 +151,7 @@ def readfile(filename):
             newheader.append(h)
 
     header = newheader
-    
+
     formats = ['S10'] + ['f'] * (len(header) - 1)
 
     if 'flag' in header:
@@ -188,8 +188,8 @@ def ingest_data(filename, path):
             ,1:].shape + (-1, ))[:
             ,1:])
         if snr[~np.isnan(snr)].any() < 3:
-            raw_input('''WARNING: signal to noise ratio smaller than 3 
-            for at least some lines! You should only use SNR>3 
+            raw_input('''WARNING: signal to noise ratio smaller than 3
+            for at least some lines! You should only use SNR>3
             measurements (return to proceed)''')
     except (IndexError, TypeError):
         pass
@@ -319,8 +319,8 @@ def savehist(data, snname, Zs, nsample, i, path, nmeas, measnames, verbose=False
             try:
                 from sklearn.neighbors import KernelDensity
             except ImportError:
-                print ('''sklearn is not available, 
-                thus we cannot compute kernel density. 
+                print ('''sklearn is not available,
+                thus we cannot compute kernel density.
                 switching to bayesian blocks''')
                 BINMODE = 'bb'
         if BINMODE == 'kd':
@@ -511,7 +511,7 @@ def run((name, flux, err, nm, path, bss), nsample, mds, multiproc, logf,
             raw_input("missing pickled file for this simulation: name, nsample.\nrun the MonteCarlo? Ctr-C to exit, Return to continue?\n")
             RUNSIM = True
         else:
-            pklfile = open(picklefile, 'rb')     
+            pklfile = open(picklefile, 'rb')
             res = pickle.load(pklfile)
 
     if RUNSIM:
@@ -525,7 +525,7 @@ def run((name, flux, err, nm, path, bss), nsample, mds, multiproc, logf,
             sample = [errordistrib(dargs, newnsample) for i in range(NM0, nm)]
             if sample == -1:
                 return -1
-            
+
         ###Start calculation###
         ## the flux to be feed to the calculation will be
         ## flux + error*i
@@ -723,10 +723,10 @@ def main():
     parser.add_argument('name', metavar='<name>', type=str, help="the SN file name (root of the _min,_max file names")
     parser.add_argument('nsample', metavar='N', type=int, help="number of iterations, minimum 100 (or 1 for no MC sampling)")
     parser.add_argument('--clobber', default=False, action='store_true', help="replace existing output")
-    parser.add_argument('--binmode', default='k', type=str, choices=['d', 's', 'k', 't', 'bb', 'kd'], help='''method to determine bin size 
-    {d: Duanes formula, s: n^1/2, t: 2*n**1/3(default), k: Knuth's rule, 
+    parser.add_argument('--binmode', default='k', type=str, choices=['d', 's', 'k', 't', 'bb', 'kd'], help='''method to determine bin size
+    {d: Duanes formula, s: n^1/2, t: 2*n**1/3(default), k: Knuth's rule,
     bb: Bayesian blocks, kd: Kernel Density}''')
-    parser.add_argument('--path', default=None, type=str, help='''input/output path (must contain the input _max.txt and 
+    parser.add_argument('--path', default=None, type=str, help='''input/output path (must contain the input _max.txt and
     _min.txt files  in a subdirectory sn_data)''')
     parser.add_argument('--unpickle', default=False, action='store_true', help="read the pickled realization instead of making a new one")
 
@@ -737,8 +737,8 @@ def main():
     parser.add_argument('--noplot', default=False, action='store_true', help=" don't plot individual distributions (default is to plot all distributions)")
     parser.add_argument('--asciiout', default=False, action='store_true', help=" write distribution in an ascii output (default is not to)")
     parser.add_argument('--asciidistrib', default=False, action='store_true', help=" write distribution in an ascii output (default is not to)")
-    parser.add_argument('--md', default='all', type=str, help='''metallicity diagnostic to calculate. 
-    default is 'all', options are: 
+    parser.add_argument('--md', default='all', type=str, help='''metallicity diagnostic to calculate.
+    default is 'all', options are:
     D02, Z94, M91, C01, P05, M08, M08all, M13, PP04, D13, D13all, KD02, DP00 (deprecated), P01, D16, PG16, C17''')
     parser.add_argument('--multiproc', default=False, action='store_true', help=" multiprocess, with number of threads max(available cores-1, MAXPROCESSES)")
     args = parser.parse_args()
@@ -763,8 +763,8 @@ def main():
     if args.path:
         path = args.path
     else:
-        assert (os.getenv("MCMetdata")), ''' the _max, _min (and _med) data must live in a folder named sn_data. 
-        pass a path to the sn_data folder, or set up the environmental variable 
+        assert (os.getenv("MCMetdata")), ''' the _max, _min (and _med) data must live in a folder named sn_data.
+        pass a path to the sn_data folder, or set up the environmental variable
         MCMetdata pointing to the path where sn_data lives '''
         path = os.getenv("MCMetdata")
     assert(os.path.isdir(path)), "pass a path or set up the environmental variable MCMetdata pointing to the path where the _min _max _med files live"
