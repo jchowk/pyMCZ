@@ -44,7 +44,7 @@ Zs = ["E(B-V)",  # based on Halpha, Hbeta
     "DP00",  # S23 available but deprecated
     "P10_ONS", "P10_ON",
     "M08_R23", "M08_N2Ha", "M08_O3Hb", "M08_O2Hb", "M08_O3O2", "M08_O3N2",
-    "M13_O3N2", "M13_N2",
+    "M13_O3N2", "M13_N2Ha",
     "D13_N2S2_O3S2", "D13_N2S2_O3Hb",
     "D13_N2S2_O3O2", "D13_N2O2_O3S2",
     "D13_N2O2_O3Hb", "D13_N2O2_O3O2",
@@ -293,5 +293,5 @@ def calculation(mscales, measured, num, mds, nps, logf, dust_corr=True,
     if 'KK04_N2Ha' in mds:
         mscales.calcKD02_N2O2()
         mscales.calcKK04_N2Ha()
-    else if 'KD02_N2O2' in mds:
+    elif 'KD02_N2O2' in mds:
         mscales.calcKD02_N2O2()

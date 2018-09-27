@@ -424,6 +424,7 @@ class diagnostics:
     def calcNIIOII(self):
         if self.hasN2 and self.hasO2:
             self.logN2O2 = np.log10(self.N26584 / self.O23727) + self.dustcorrect(k_N2, k_O2, flux=False)
+
             self.hasN2O2 = True
         if not self.hasN2O2 or np.mean(self.logN2O2) < -1.2:
 
@@ -929,7 +930,7 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
         else:
             e1 = np.random.normal(0, 0.027, self.nm)
             e2 = np.random.normal(0, 0.024, self.nm)
-            self.mds["M13_N2"] = 8.743 + e1 + (0.462 + e2) * self.logN2Ha
+            self.mds["M13_N2Ha"] = 8.743 + e1 + (0.462 + e2) * self.logN2Ha
             if   self.hasHb and self.hasO3:
                 e1 = np.random.normal(0, 0.012, self.nm)
                 e2 = np.random.normal(0, 0.012, self.nm)
@@ -1346,6 +1347,9 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
             printsafemulti("WARNING: need N2, O2 ",
                            self.logf, self.nps)
             return -1
+
+        # Use [N2/Ha * Ha/Hb] / [O2/Hb]
+        x = (self.logN2Ha+np.log10(2.86)) - self.logO2Hb
 
         y = 8.66 + 0.36*self.logN2O2 - 0.17*self.logN2O2**2
         self.mds["B07_N2O2"] = y
