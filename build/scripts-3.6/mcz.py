@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/Users/howk/miniconda3/bin/python
 from __future__ import print_function
 import os
 import sys
