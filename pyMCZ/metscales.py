@@ -7,7 +7,7 @@ from metallicity import get_keys, printsafemulti
 
 import pdb
 
-niter = 5  # number of iteations+1 for KD02 methods
+niter = 5  # number of iterations+1 for KD02 methods
 
 k_Ha = 2.535  # CCM Rv=3.1
 k_Hb = 3.609  # CCM Rv=3.1
@@ -1357,10 +1357,9 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
         os.system('rm -r C13*dat')
 
 
-########## jch additions
-
     def calcPMC09(self):
-        #Perez-Montero & Contini (2009) - N2Ha
+        #Perez-Montero & Contini (2009) - N2Ha        
+        # Added 5/2017 by jch, Santiago
         printsafemulti("calculating PMC09", self.logf, self.nps)
 
         if not self.hasHa  or not self.hasN2 or not self.hasHa:
@@ -1375,6 +1374,7 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
     #@profile
     def calcB07(self):
         #Bresolin 2007 - N2O2
+        # Added 5/2017 by jch, Santiago
         printsafemulti("calculating B07", self.logf, self.nps)
 
         if not self.hasHa  or not self.hasN2 or not self.hasO2:
@@ -1396,6 +1396,7 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
     #@profile
     def calcD16(self):
         #Dopita+ 2016
+        # Added 5/2017 by jch, Santiago
         printsafemulti("calculating D16", self.logf, self.nps)
 
         if not self.hasHa  or not self.hasN2 or not self.hasS2:
@@ -1415,9 +1416,8 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
     def calcC17(self, allC17=False):
         # Curti+ 2017
         # Monthly Notices Royal Astronomical Society, vol. 465, pp 1384-1400
-        # Published in October 2016
         #
-        # Added 5/16/17 by jch, Santiago
+        # Added 5/2017 by jch, Santiago
         import pdb
 
         valid_upper = 8.85
@@ -1543,6 +1543,7 @@ did you set them up with  setOlines() and ?''', self.logf, self.nps)
 
     def calcPG16(self):
         # Pilyugin & Grebel (2016, MNRAS, 457, 3678)
+        # Added 5/2017 by jch, Santiago
         printsafemulti("calculating PG16", self.logf, self.nps)
 
         # Initialize the PG16 results
